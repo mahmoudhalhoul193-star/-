@@ -1,0 +1,102 @@
+<header>
+<h1>مشورني - تجربة WhatsApp</h1>
+<p>جميع الطلبات الآن عبر WhatsApp</p>
+</header>
+
+<script>
+function toggleDark(){document.body.classList.toggle('dark');}
+
+let drivers = JSON.parse(localStorage.getItem('drivers')) || [];
+let orders = JSON.parse(localStorage.getItem('orders')) || [];
+
+function saveDrivers(){ localStorage.setItem('drivers', JSON.stringify(drivers)); }
+function saveOrders(){ localStorage.setItem('orders', JSON.stringify(orders)); }
+
+function addDriver(){
+    const name=document.getElementById('driverName').value;
+    const phone=document.getElementById('driverPhone').value;
+    if(!name||!phone){alert('اكمل البيانات');return;}
+    drivers.push({name,phone});
+    document.getElementById('driverName').value='';
+    document.getElementById('driverPhone').value='';
+    saveDrivers();
+    renderDrivers();
+    updateDriverSelect();
+}
+
+function renderDrivers(){
+    const list=document.getElementById('driversList');
+    list.innerHTML='';
+    drivers.forEach((d,i)=>{
+        const div=document.createElement('div');
+        div.textContent=`${i+1}. ${d.name} - ${d.phone}`;
+        list.appendChild(div);
+    });
+}
+
+function updateDriverSelect(){
+    const select=document.getElementById('selectDriver');
+    select.innerHTML='<option value="">اختر سواق</option>';
+    drivers.forEach((d,i)=>{select.innerHTML+=`<option value="${i}">${d.name}</option>`;});
+}
+
+function addOrder(){
+    const cname=document.getElementById('customerName').value;
+    const cphone=document.getElementById('customerPhone').value;
+    const details=document.getElementById('orderDetails').value;
+    const vehicle=document.getElementById('vehicleType').value;
+    const driverIndex=document.getElementById('selectDriver').value;
+    let price=parseFloat(document.getElementById('customPrice').value);
+    const appRating=document.getElementById('appRating').value;
+    const driverRating=document.getElementById('driverRating').value;
+
+    if(!cname||!cphone||!details||driverIndex===''||isNaN(price)){
+        alert('اكمل جميع البيانات'); return;
+    }
+    if(price<10){ alert('السعر يجب أن يكون 10 جنيه على الأقل'); return; }
+
+    const driver = drivers[driverIndex];
+
+    const msg = encodeURIComponent(`مرحبا ${driver.name}!
+لديك طلب جديد على مشورني 🚀
+
+👤 اسم العميل: ${cname}
+📞 رقم العميل: ${cphone}
+📝 تفاصيل الطلب: ${details}
+🚗 نوع المركبة: ${vehicle}
+💰 السعر: ${price} جنيه
+
+تقييم التطبيق: ${appRating || '-'}
+تقييمك كسواق: ${driverRating || '-'}
+
+💬 يرجى الرد على WhatsApp لتأكيد الطلب.`);
+
+    window.open(`https://wa.me/${driver.phone.replace(/[^0-9]/g,'')}?text=${msg}`, '_blank');
+
+    const order={id:orders.length+1,customerName:cname,customerPhone:cphone,details,vehicle,status:'PENDING',driver:driver,price,appRating,driverRating};
+    orders.push(order);
+    saveOrders();
+
+    document.getElementById('customerName').value='';
+    document.getElementById('customerPhone').value='';
+    document.getElementById('orderDetails').value='';
+    document.getElementById('customPrice').value='';
+    document.getElementById('selectDriver').value='';
+    renderOrders();
+}
+
+function renderOrders(){
+    const list=document.getElementById('ordersList');
+    list.innerHTML='';
+    orders.forEach(o=>{
+        const div=document.createElement('div');
+        div.innerHTML=`<b>${o.customerName}</b> - ${o.details} - ${o.vehicle} - السعر: ${o.price} جنيه - سواق: ${o.driver.name} - تقييم التطبيق: ${o.appRating || '-'} - تقييم السواق: ${o.driverRating || '-'} `;
+        list.appendChild(div);
+    });
+}
+
+// تحميل البيانات عند فتح الصفحة
+renderDrivers();
+updateDriverSelect();
+renderOrders();
+</script>
