@@ -1,14 +1,11 @@
-<header>
-<h1>مشورني - تجربة WhatsApp</h1>
-<p>جميع الطلبات الآن عبر WhatsApp</p>
-</header>
-
 <script>
 function toggleDark(){document.body.classList.toggle('dark');}
 
+// جلب البيانات من localStorage لو موجودة
 let drivers = JSON.parse(localStorage.getItem('drivers')) || [];
 let orders = JSON.parse(localStorage.getItem('orders')) || [];
 
+// دوال الحفظ
 function saveDrivers(){ localStorage.setItem('drivers', JSON.stringify(drivers)); }
 function saveOrders(){ localStorage.setItem('orders', JSON.stringify(orders)); }
 
@@ -19,7 +16,7 @@ function addDriver(){
     drivers.push({name,phone});
     document.getElementById('driverName').value='';
     document.getElementById('driverPhone').value='';
-    saveDrivers();
+    saveDrivers();           // حفظ السواقين تلقائي
     renderDrivers();
     updateDriverSelect();
 }
@@ -75,7 +72,7 @@ function addOrder(){
 
     const order={id:orders.length+1,customerName:cname,customerPhone:cphone,details,vehicle,status:'PENDING',driver:driver,price,appRating,driverRating};
     orders.push(order);
-    saveOrders();
+    saveOrders();          // حفظ الطلبات تلقائي
 
     document.getElementById('customerName').value='';
     document.getElementById('customerPhone').value='';
